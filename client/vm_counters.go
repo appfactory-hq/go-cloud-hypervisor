@@ -1,0 +1,21 @@
+package client
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+)
+
+type VMCountersResponse map[string]map[string]int
+
+// Counters returns counters from the VM
+func (c *VMClient) Counters(ctx context.Context) (VMCountersResponse, error) {
+	resp := VMCountersResponse{}
+
+	code, err := c.call(ctx, http.MethodGet, "counters", nil, &resp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to call counters: %w", err)
+	}
+
+	return resp, c.expectCode(code, http.StatusOK)
+}
