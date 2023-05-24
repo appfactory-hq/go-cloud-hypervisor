@@ -8,8 +8,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	"github.com/appfactory-hq/go-cloud-hypervisor/client"
 	"github.com/google/uuid"
@@ -85,6 +88,17 @@ func (m *Machine) PID() (int, error) {
 	return m.cmd.Process.Pid, nil
 }
 
+func (m *Machine) DescribeInstanceInfo(ctx context.Context) (*client.VMInfoResponse, error) {
+	m.logger.Debug("Called Machine.DescribeInstanceInfo()")
+
+	info, err := m.client.VM().Info(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to describe instance info: %w", err)
+	}
+
+	return info, nil
+}
+
 func (m *Machine) Start(ctx context.Context) error {
 	m.logger.Debug("Called Machine.Start()")
 
@@ -132,6 +146,8 @@ func (m *Machine) Shutdown(ctx context.Context) error {
 
 // GetVersion gets the machine's cloud-hypervisor version and returns it.
 func (m *Machine) GetVersion(ctx context.Context) (string, error) {
+	m.logger.Debug("Called Machine.GetVersion()")
+
 	resp, err := m.client.VMM().Ping(ctx)
 	if err != nil {
 		m.logger.Error("Getting cloud-hypervisor version", "err", err)
@@ -154,4 +170,66 @@ func (m *Machine) startInstance(ctx context.Context) error {
 	m.logger.Info("Starting instance successful")
 
 	return nil
+}
+
+// StopVMM stops the current VMM.
+func (m *Machine) StopVMM() error {
+	m.logger.Debug("Called Machine.StopVMM()")
+
+	return m.stopVMM()
+}
+
+func (m *Machine) stopVMM() error {
+	if m.cmd != nil && m.cmd.Process != nil {
+		m.logger.Debug("stopVMM(): sending sigterm to cloud-hypervisor process")
+
+		if err := m.cmd.Process.Signal(syscall.SIGTERM); err != nil && !errors.Is(err, os.ErrProcessDone) {
+			return fmt.Errorf("sending sigterm to process: %w", err)
+		}
+
+		return nil
+	}
+
+	m.logger.Debug("stopVMM(): no cloud-hypervisor process running, not sending a signal")
+
+	return nil
+}
+
+// nolint: unused
+// Set up a signal handler to pass through to cloud-hypervisor.
+func (m *Machine) setupSignals() {
+	// signals := m.Cfg.ForwardSignals
+	signals := []os.Signal{}
+
+	if len(signals) == 0 {
+		return
+	}
+
+	m.logger.Debug("Setting up signal handler")
+
+	sigchan := make(chan os.Signal, len(signals))
+
+	signal.Notify(sigchan, signals...)
+
+	go func() {
+	ForLoop:
+		for {
+			select {
+			case sig := <-sigchan:
+				m.logger.Debug("Caught signal", "signal", sig)
+
+				// Some signals kill the process, some of them are not.
+				if err := m.cmd.Process.Signal(sig); err != nil {
+					m.logger.Error("Failed to send signal to process", "err", err)
+				}
+			case <-m.exitCh:
+				// And if a signal kills the process, we can stop this for loop and remove sigchan.
+				break ForLoop
+			}
+		}
+
+		signal.Stop(sigchan)
+
+		close(sigchan)
+	}()
 }
