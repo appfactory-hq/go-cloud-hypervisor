@@ -8,7 +8,29 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
+
+type Option func(*Client)
+
+func WithHTTPEndpoint(endpoint string) Option {
+	return func(c *Client) {
+		c.base = strings.TrimRight(endpoint, "/")
+	}
+}
+
+func WithHTTPClient(client *http.Client) Option {
+	return func(c *Client) {
+		c.httpClient = client
+	}
+}
+
+func WithUnixSocket(socketPath string) Option {
+	return func(c *Client) {
+		c.httpClient.Transport = newUnixSocketTransport(socketPath)
+		c.base = "http://unix"
+	}
+}
 
 type Client struct {
 	httpClient *http.Client
@@ -16,11 +38,18 @@ type Client struct {
 	prefix     string
 }
 
-func NewClient(httpClient *http.Client, base string) *Client {
-	return &Client{
-		httpClient: httpClient,
-		base:       strings.TrimRight(base, "/"),
+func New(opts ...Option) *Client {
+	c := &Client{
+		httpClient: &http.Client{
+			Timeout: 2 * time.Second,
+		},
 	}
+
+	for _, opt := range opts {
+		opt(c)
+	}
+
+	return c
 }
 
 func (c *Client) endpoint(path string) string {
@@ -54,6 +83,7 @@ func (c *Client) call(ctx context.Context, method string, path string, body inte
 	if err != nil {
 		return 0, fmt.Errorf("do request: %w", err)
 	}
+
 	defer func() {
 		if rerr := resp.Body.Close(); rerr != nil {
 			err = fmt.Errorf("close response body: %w", rerr)

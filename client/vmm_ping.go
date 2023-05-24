@@ -6,12 +6,20 @@ import (
 	"net/http"
 )
 
+type VMMPingResponse struct {
+	BuildVersion string `json:"build_version"`
+	Version      string `json:"version"`
+	PID          int    `json:"pid"`
+}
+
 // Ping the VMM to check for API server availability.
-func (c *VMMClient) Ping(ctx context.Context) error {
-	code, err := c.call(ctx, http.MethodGet, "ping", nil, nil)
+func (c *VMMClient) Ping(ctx context.Context) (*VMMPingResponse, error) {
+	resp := &VMMPingResponse{}
+
+	code, err := c.call(ctx, http.MethodGet, "ping", nil, &resp)
 	if err != nil {
-		return fmt.Errorf("failed to call ping: %w", err)
+		return nil, fmt.Errorf("failed to call ping: %w", err)
 	}
 
-	return c.expectCode(code, http.StatusOK)
+	return resp, c.expectCode(code, http.StatusOK)
 }

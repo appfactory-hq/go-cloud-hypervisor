@@ -2,12 +2,6 @@ package client
 
 import "encoding/json"
 
-type PingResponse struct {
-	BuildVersion string `json:"build_version"`
-	Version      string `json:"version"`
-	PID          int    `json:"pid"`
-}
-
 /*
 
 {
@@ -286,8 +280,8 @@ type VMConfig struct {
 	VSOCK    *VMConfigVSOCK    `json:"vsock,omitempty"`
 	SGXEPC   []*VMConfigSGXEPC `json:"sgx_epc,omitempty"`
 	Numa     []*VMConfigNuma   `json:"numa,omitempty"`
-	IOMMU    bool              `json:"iommu,omitempty"`
-	Watchdog bool              `json:"watchdog,omitempty"`
+	IOMMU    bool              `json:"iommu"`
+	Watchdog bool              `json:"watchdog"`
 	Platform *VMConfigPlatform `json:"platform,omitempty"`
 	TPM      *VMConfigTPM      `json:"tpm,omitempty"`
 }
@@ -302,7 +296,7 @@ type VMConfigPlatform struct {
 	SerialNumber   string   `json:"serial_number,omitempty"`
 	UUID           string   `json:"uuid,omitempty"`
 	OEMStrings     []string `json:"oem_strings,omitempty"`
-	TDX            bool     `json:"tdx,omitempty"`
+	TDX            bool     `json:"tdx"`
 }
 
 type VMConfigNuma struct {
@@ -321,13 +315,13 @@ type VMConfigNumaDistance struct {
 type VMConfigSGXEPC struct {
 	ID       string `json:"id,omitempty"`
 	Size     int    `json:"size,omitempty"`
-	Prefault bool   `json:"prefault,omitempty"`
+	Prefault bool   `json:"prefault"`
 }
 
 type VMConfigVSOCK struct {
 	CID        int    `json:"cid,omitempty"`
 	Socket     string `json:"socket,omitempty"`
-	IOMMU      bool   `json:"iommu,omitempty"`
+	IOMMU      bool   `json:"iommu"`
 	PCISegment int    `json:"pci_segment,omitempty"`
 	ID         string `json:"id,omitempty"`
 }
@@ -335,14 +329,14 @@ type VMConfigVSOCK struct {
 type VMConfigVDPA struct {
 	Path       string `json:"path,omitempty"`
 	NumQueues  int    `json:"num_queues,omitempty"`
-	IOMMU      bool   `json:"iommu,omitempty"`
+	IOMMU      bool   `json:"iommu"`
 	PCISegment int    `json:"pci_segment,omitempty"`
 	ID         string `json:"id,omitempty"`
 }
 
 type VMConfigDevice struct {
 	Path       string `json:"path,omitempty"`
-	IOMMU      bool   `json:"iommu,omitempty"`
+	IOMMU      bool   `json:"iommu"`
 	PCISegment int    `json:"pci_segment,omitempty"`
 	ID         string `json:"id,omitempty"`
 }
@@ -350,20 +344,20 @@ type VMConfigDevice struct {
 type VMConfigConsole struct {
 	File  string `json:"file,omitempty"`
 	Mode  string `json:"mode,omitempty"`
-	IOMMU bool   `json:"iommu,omitempty"`
+	IOMMU bool   `json:"iommu"`
 }
 
 type VMConfigSerial struct {
 	File  string `json:"file,omitempty"`
 	Mode  string `json:"mode,omitempty"`
-	IOMMU bool   `json:"iommu,omitempty"`
+	IOMMU bool   `json:"iommu"`
 }
 
 type VMConfigPMEM struct {
 	File          string `json:"file,omitempty"`
 	Size          int    `json:"size,omitempty"`
-	IOMMU         bool   `json:"iommu,omitempty"`
-	DiscardWrites bool   `json:"discard_writes,omitempty"`
+	IOMMU         bool   `json:"iommu"`
+	DiscardWrites bool   `json:"discard_writes"`
 	PCISegment    int    `json:"pci_segment,omitempty"`
 	ID            string `json:"id,omitempty"`
 }
@@ -379,13 +373,13 @@ type VMConfigFS struct {
 
 type VMConfigBalloon struct {
 	Size              int  `json:"size,omitempty"`
-	DeflateOnOOM      bool `json:"deflate_on_oom,omitempty"`
-	FreePageReporting bool `json:"free_page_reporting,omitempty"`
+	DeflateOnOOM      bool `json:"deflate_on_oom"`
+	FreePageReporting bool `json:"free_page_reporting"`
 }
 
 type VMConfigRNG struct {
 	SRC   string `json:"src,omitempty"`
-	IOMMU bool   `json:"iommu,omitempty"`
+	IOMMU bool   `json:"iommu"`
 }
 
 type VMConfigNet struct {
@@ -395,10 +389,10 @@ type VMConfigNet struct {
 	MAC               string                     `json:"mac,omitempty"`
 	HostMAC           string                     `json:"host_mac,omitempty"`
 	MTU               int                        `json:"mtu,omitempty"`
-	IOMMU             bool                       `json:"iommu,omitempty"`
+	IOMMU             bool                       `json:"iommu"`
 	NumQueues         int                        `json:"num_queues,omitempty"`
 	QueueSize         int                        `json:"queue_size,omitempty"`
-	VhostUser         bool                       `json:"vhost_user,omitempty"`
+	VhostUser         bool                       `json:"vhost_user"`
 	VhostSocket       string                     `json:"vhost_socket,omitempty"`
 	VhostMode         string                     `json:"vhost_mode,omitempty"`
 	ID                string                     `json:"id,omitempty"`
@@ -408,12 +402,12 @@ type VMConfigNet struct {
 
 type VMConfigDisk struct {
 	Path              string                     `json:"path,omitempty"`
-	Readonly          bool                       `json:"readonly,omitempty"`
-	Direct            bool                       `json:"direct,omitempty"`
-	IOMMU             bool                       `json:"iommu,omitempty"`
+	Readonly          bool                       `json:"readonly"`
+	Direct            bool                       `json:"direct"`
+	IOMMU             bool                       `json:"iommu"`
 	NumQueues         int                        `json:"num_queues,omitempty"`
 	QueueSize         int                        `json:"queue_size,omitempty"`
-	VhostUser         bool                       `json:"vhost_user,omitempty"`
+	VhostUser         bool                       `json:"vhost_user"`
 	VhostSocket       string                     `json:"vhost_socket,omitempty"`
 	RateLimiterConfig *VMConfigRateLimiterConfig `json:"rate_limiter_config,omitempty"`
 	PCISegment        int                        `json:"pci_segment,omitempty"`
@@ -448,13 +442,13 @@ type VMConfigMemory struct {
 	Size           string                `json:"size,omitempty"`
 	HotPlugSize    int                   `json:"hotplug_size,omitempty"`
 	HotPluggedSize int                   `json:"hotplugged_size,omitempty"`
-	Mergeable      bool                  `json:"mergeable,omitempty"`
+	Mergeable      bool                  `json:"mergeable"`
 	HotplugMethod  string                `json:"hotplug_method,omitempty"`
-	Shared         bool                  `json:"shared,omitempty"`
-	HugePages      bool                  `json:"hugepages,omitempty"`
+	Shared         bool                  `json:"shared"`
+	HugePages      bool                  `json:"hugepages"`
 	HugePageSize   int                   `json:"hugepage_size,omitempty"`
-	Prefault       bool                  `json:"prefault,omitempty"`
-	THP            bool                  `json:"thp,omitempty"`
+	Prefault       bool                  `json:"prefault"`
+	THP            bool                  `json:"thp"`
 	Zones          []*VMConfigMemoryZone `json:"zones,omitempty"`
 }
 
@@ -462,21 +456,21 @@ type VMConfigMemoryZone struct {
 	ID             string `json:"id,omitempty"`
 	Size           string `json:"size,omitempty"`
 	File           string `json:"file,omitempty"`
-	Mergeable      bool   `json:"mergeable,omitempty"`
-	Shared         bool   `json:"shared,omitempty"`
-	HugePages      bool   `json:"hugepages,omitempty"`
+	Mergeable      bool   `json:"mergeable"`
+	Shared         bool   `json:"shared"`
+	HugePages      bool   `json:"hugepages"`
 	HugePageSize   int    `json:"hugepage_size,omitempty"`
 	HostNumaNode   int    `json:"host_numa_node,omitempty"`
 	HotPlugSize    int    `json:"hotplug_size,omitempty"`
 	HotPluggedSize int    `json:"hotplugged_size,omitempty"`
-	Prefault       bool   `json:"prefault,omitempty"`
+	Prefault       bool   `json:"prefault"`
 }
 
 type VMConfigCPUs struct {
 	BootVCPUs    int                     `json:"boot_vcpus,omitempty"`
 	MaxVCPUs     int                     `json:"max_vcpus,omitempty"`
 	Topology     *VMConfigCPUsTopology   `json:"topology,omitempty"`
-	KVMHyperV    bool                    `json:"kvm_hyperv,omitempty"`
+	KVMHyperV    bool                    `json:"kvm_hyperv"`
 	MaxxPhysBits int                     `json:"max_phys_bits,omitempty"`
 	Affinity     []*VMConfigCPUsAffinity `json:"affinity,omitempty"`
 	Features     map[string]bool         `json:"features,omitempty"`
@@ -499,4 +493,9 @@ type VMDeviceItem struct {
 	Resources []json.RawMessage `json:"resources,omitempty"`
 	Children  []string          `json:"children,omitempty"`
 	PCIBDF    string            `json:"pci_bdf,omitempty"`
+}
+
+type VMPCIDeviceInfo struct {
+	ID  string `json:"id"`
+	BDF string `json:"bdf"`
 }

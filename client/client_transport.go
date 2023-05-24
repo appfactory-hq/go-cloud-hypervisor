@@ -1,4 +1,4 @@
-package cloudhypervisor
+package client
 
 import (
 	"context"
@@ -15,6 +15,7 @@ func newUnixSocketTransport(socketPath string) *http.Transport {
 				return nil, fmt.Errorf("resolve unix addr: %w", err)
 			}
 
+			// nolint: wrapcheck // no need to wrap this error
 			return net.DialUnix("unix", nil, addr)
 		},
 	}

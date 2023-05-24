@@ -16,7 +16,7 @@ func TestClientVMInfo(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		ctx := context.Background()
 
-		c := NewClient(http.DefaultClient, "localhost:badport")
+		c := New(WithHTTPEndpoint("localhost:badport"))
 
 		_, err := c.VM().Info(ctx)
 		assert.EqualError(t, err, `failed to call info: do request: Get "localhost:badport/api/v1/vm.info": unsupported protocol scheme "localhost"`)
@@ -40,7 +40,7 @@ func TestClientVMInfo(t *testing.T) {
 
 		ctx := context.Background()
 
-		c := NewClient(svr.Client(), svr.URL)
+		c := New(WithHTTPClient(svr.Client()), WithHTTPEndpoint(svr.URL))
 
 		resp, err := c.VM().Info(ctx)
 		assert.NoError(t, err)

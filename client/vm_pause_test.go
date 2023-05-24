@@ -15,7 +15,7 @@ func TestClientVMPause(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		ctx := context.Background()
 
-		c := NewClient(http.DefaultClient, "localhost:badport")
+		c := New(WithHTTPEndpoint("localhost:badport"))
 
 		err := c.VM().Pause(ctx)
 		assert.EqualError(t, err, `failed to call pause: do request: Put "localhost:badport/api/v1/vm.pause": unsupported protocol scheme "localhost"`)
@@ -32,7 +32,7 @@ func TestClientVMPause(t *testing.T) {
 
 		ctx := context.Background()
 
-		c := NewClient(svr.Client(), svr.URL)
+		c := New(WithHTTPClient(svr.Client()), WithHTTPEndpoint(svr.URL))
 
 		err := c.VM().Pause(ctx)
 		assert.NoError(t, err)

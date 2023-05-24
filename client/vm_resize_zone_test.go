@@ -16,7 +16,7 @@ func TestClientVMResizeZone(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		ctx := context.Background()
 
-		c := NewClient(http.DefaultClient, "localhost:badport")
+		c := New(WithHTTPEndpoint("localhost:badport"))
 
 		err := c.VM().ResizeZone(ctx, &VMResizeZoneRequest{})
 		assert.EqualError(t, err, `failed to call resize-zone: do request: Put "localhost:badport/api/v1/vm.resize-zone": unsupported protocol scheme "localhost"`)
@@ -38,7 +38,7 @@ func TestClientVMResizeZone(t *testing.T) {
 
 		ctx := context.Background()
 
-		c := NewClient(svr.Client(), svr.URL)
+		c := New(WithHTTPClient(svr.Client()), WithHTTPEndpoint(svr.URL))
 
 		err := c.VM().ResizeZone(ctx, &VMResizeZoneRequest{
 			ID:         "id",

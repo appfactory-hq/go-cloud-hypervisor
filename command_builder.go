@@ -9,6 +9,7 @@ import (
 
 const defaultCloudHypervisorBin = "cloud-hypervisor"
 
+// nolint: unused
 var defaultCloudHypervisorVMMCommandBuilder = VMCommandBuilder{}.
 	WithBin(defaultCloudHypervisorBin).
 	WithStdin(os.Stdin).
@@ -35,12 +36,14 @@ func (b VMCommandBuilder) Args() []string {
 // cloud-hypervisor exec.Command.
 func (b VMCommandBuilder) WithArgs(args []string) VMCommandBuilder {
 	b.args = args
+
 	return b
 }
 
 // AddArgs will append the provided args to the given command.
 func (b VMCommandBuilder) AddArgs(args ...string) VMCommandBuilder {
 	b.args = append(b.args, args...)
+
 	return b
 }
 
@@ -82,7 +85,7 @@ func (b VMCommandBuilder) WithSocketPath(path string) VMCommandBuilder {
 }
 
 // Stdout will return the stdout that will be used when creating
-// the cloud-hypervisor exec.Command
+// the cloud-hypervisor exec.Command.
 func (b VMCommandBuilder) Stdout() io.Writer {
 	return b.stdout
 }
@@ -96,7 +99,7 @@ func (b VMCommandBuilder) WithStdout(stdout io.Writer) VMCommandBuilder {
 }
 
 // Stderr will return the stderr that will be used when creating
-// the cloud-hypervisor exec.Command
+// the cloud-hypervisor exec.Command.
 func (b VMCommandBuilder) Stderr() io.Writer {
 	return b.stderr
 }
@@ -136,6 +139,7 @@ func (b VMCommandBuilder) Build(ctx context.Context) *exec.Cmd {
 		args = append(args, v...)
 	}
 
+	// nolint: gosec // this is a command that is being run by the user.
 	cmd := exec.CommandContext(
 		ctx,
 		b.Bin(),

@@ -14,8 +14,7 @@ type VMAddDeviceRequest struct {
 }
 
 type VMAddDeviceResponse struct {
-	ID  string `json:"id"`
-	BDF string `json:"bdf"`
+	*VMPCIDeviceInfo
 }
 
 // AddDevice add a new device to the VM.

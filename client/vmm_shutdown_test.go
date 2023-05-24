@@ -15,7 +15,7 @@ func TestClientVMMShutdown(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		ctx := context.Background()
 
-		c := NewClient(http.DefaultClient, "localhost:badport")
+		c := New(WithHTTPEndpoint("localhost:badport"))
 
 		err := c.VMM().Shutdown(ctx)
 		assert.EqualError(t, err, `failed to call shutdown: do request: Put "localhost:badport/api/v1/vmm.shutdown": unsupported protocol scheme "localhost"`)
@@ -32,7 +32,7 @@ func TestClientVMMShutdown(t *testing.T) {
 
 		ctx := context.Background()
 
-		c := NewClient(svr.Client(), svr.URL)
+		c := New(WithHTTPClient(svr.Client()), WithHTTPEndpoint(svr.URL))
 
 		err := c.VMM().Shutdown(ctx)
 		assert.NoError(t, err)

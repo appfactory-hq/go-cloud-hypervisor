@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,9 +16,9 @@ func TestClientVMMPing(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		ctx := context.Background()
 
-		c := NewClient(http.DefaultClient, "localhost:badport")
+		c := New(WithHTTPEndpoint("localhost:badport"))
 
-		err := c.VMM().Ping(ctx)
+		_, err := c.VMM().Ping(ctx)
 		assert.EqualError(t, err, `failed to call ping: do request: Get "localhost:badport/api/v1/vmm.ping": unsupported protocol scheme "localhost"`)
 	})
 
@@ -26,15 +27,22 @@ func TestClientVMMPing(t *testing.T) {
 			assert.Equal(t, "/api/v1/vmm.ping", r.URL.Path)
 			assert.Equal(t, http.MethodGet, r.Method)
 
-			w.WriteHeader(http.StatusOK)
+			err := json.NewEncoder(w).Encode(&VMMPingResponse{
+				Version: "1.0.0",
+				PID:     1234,
+			})
+			assert.NoError(t, err)
 		}))
 		defer svr.Close()
 
 		ctx := context.Background()
 
-		c := NewClient(svr.Client(), svr.URL)
+		c := New(WithHTTPClient(svr.Client()), WithHTTPEndpoint(svr.URL))
 
-		err := c.VMM().Ping(ctx)
+		resp, err := c.VMM().Ping(ctx)
 		assert.NoError(t, err)
+
+		assert.Equal(t, "1.0.0", resp.Version)
+		assert.Equal(t, 1234, resp.PID)
 	})
 }

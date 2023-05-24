@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestClientVMDelete(t *testing.T) {
+func TestClientVMSendMigration(t *testing.T) {
 	t.Parallel()
 
 	t.Run("failure", func(t *testing.T) {
@@ -17,14 +18,19 @@ func TestClientVMDelete(t *testing.T) {
 
 		c := New(WithHTTPEndpoint("localhost:badport"))
 
-		err := c.VM().Delete(ctx)
-		assert.EqualError(t, err, `failed to call delete: do request: Put "localhost:badport/api/v1/vm.delete": unsupported protocol scheme "localhost"`)
+		err := c.VM().SendMigration(ctx, &VMSendMigrationRequest{})
+		assert.EqualError(t, err, `failed to call send-migration: do request: Put "localhost:badport/api/v1/vm.send-migration": unsupported protocol scheme "localhost"`)
 	})
 
 	t.Run("success", func(t *testing.T) {
 		svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			assert.Equal(t, "/api/v1/vm.delete", r.URL.Path)
+			assert.Equal(t, "/api/v1/vm.send-migration", r.URL.Path)
 			assert.Equal(t, http.MethodPut, r.Method)
+
+			b, err := io.ReadAll(r.Body)
+
+			assert.NoError(t, err)
+			assert.Equal(t, `{"destination_url":"file:///path/to/state","local":true}`, string(b))
 
 			w.WriteHeader(http.StatusNoContent)
 		}))
@@ -34,7 +40,10 @@ func TestClientVMDelete(t *testing.T) {
 
 		c := New(WithHTTPClient(svr.Client()), WithHTTPEndpoint(svr.URL))
 
-		err := c.VM().Delete(ctx)
+		err := c.VM().SendMigration(ctx, &VMSendMigrationRequest{
+			DestinationURL: "file:///path/to/state",
+			Local:          true,
+		})
 		assert.NoError(t, err)
 	})
 }

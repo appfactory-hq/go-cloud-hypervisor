@@ -16,7 +16,7 @@ func TestClientVMCounters(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		ctx := context.Background()
 
-		c := NewClient(http.DefaultClient, "localhost:badport")
+		c := New(WithHTTPEndpoint("localhost:badport"))
 
 		_, err := c.VM().Counters(ctx)
 		assert.EqualError(t, err, `failed to call counters: do request: Get "localhost:badport/api/v1/vm.counters": unsupported protocol scheme "localhost"`)
@@ -40,7 +40,7 @@ func TestClientVMCounters(t *testing.T) {
 
 		ctx := context.Background()
 
-		c := NewClient(svr.Client(), svr.URL)
+		c := New(WithHTTPClient(svr.Client()), WithHTTPEndpoint(svr.URL))
 
 		resp, err := c.VM().Counters(ctx)
 		assert.NoError(t, err)

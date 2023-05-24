@@ -8,7 +8,7 @@ import (
 
 type VMCountersResponse map[string]map[string]int
 
-// Counters returns counters from the VM
+// Counters returns counters from the VM.
 func (c *VMClient) Counters(ctx context.Context) (VMCountersResponse, error) {
 	resp := VMCountersResponse{}
 
