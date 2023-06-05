@@ -44,3 +44,10 @@ coverage-html: $(BUILD_DIR)/coverage.out
 
 generate: $(GO_FILES)
 	@go generate ./...
+
+
+docker-build:
+	@docker build -t cloud-hypervisor .
+
+docker-run: docker-build
+	@docker run --privileged -it --rm --mount type=bind,source=/home/euskadi/go/pkg/mod,target=/go/pkg/mod cloud-hypervisor

@@ -16,3 +16,21 @@ type Logger interface {
 	Error(msg string, args ...any)
 	ErrorCtx(ctx context.Context, msg string, args ...any)
 }
+
+type NoopLogger struct{}
+
+func (l NoopLogger) Debug(msg string, args ...any) {}
+
+func (l NoopLogger) DebugCtx(ctx context.Context, msg string, args ...any) {}
+
+func (l NoopLogger) Info(msg string, args ...any) {}
+
+func (l NoopLogger) InfoCtx(ctx context.Context, msg string, args ...any) {}
+
+func (l NoopLogger) Warn(msg string, args ...any) {}
+
+func (l NoopLogger) WarnCtx(ctx context.Context, msg string, args ...any) {}
+
+func (l NoopLogger) Error(msg string, args ...any) {}
+
+func (l NoopLogger) ErrorCtx(ctx context.Context, msg string, args ...any) {}
