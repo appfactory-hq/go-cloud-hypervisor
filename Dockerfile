@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v32.0/cloud-hypervisor-static
+RUN wget https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v35.0/cloud-hypervisor-static
 RUN chmod +x cloud-hypervisor-static && mv cloud-hypervisor-static /usr/bin/cloud-hypervisor
 
 RUN mkdir -p /data
